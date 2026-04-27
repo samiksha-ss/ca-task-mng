@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f4ef;
+  --foreground: #1f2937;
+  --card: #fffdf8;
+  --card-foreground: #111827;
+  --muted: #ece7dc;
+  --muted-foreground: #5b6472;
+  --border: #d8d1c2;
+  --ring: #0f766e;
+  --accent: #0f766e;
+  --accent-foreground: #f8fafc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --foreground: #f9fafb;
+    --card: #182131;
+    --card-foreground: #f9fafb;
+    --muted: #243041;
+    --muted-foreground: #a5b1c2;
+    --border: #334155;
+    --ring: #5eead4;
+    --accent: #14b8a6;
+    --accent-foreground: #042f2e;
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100%;
+}
+
+a,
+button {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
