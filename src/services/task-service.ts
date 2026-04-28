@@ -9,12 +9,20 @@ import type {
   Team,
 } from "@/types";
 
-type TaskPageData = {
-  tasks: Task[];
+type TaskDirectoryData = {
   teams: Team[];
   companies: Company[];
   assignees: Profile[];
+};
+
+type TaskPageData = TaskDirectoryData & {
+  tasks: Task[];
   stats: TaskStats;
+  error: string | null;
+};
+
+type TaskDetailData = TaskDirectoryData & {
+  task: Task | null;
   error: string | null;
 };
 
@@ -31,6 +39,18 @@ type CreateTaskInput = {
   billable: boolean;
   createdBy: string;
 };
+
+type UpdateTaskInput = Omit<CreateTaskInput, "createdBy"> & {
+  taskId: string;
+};
+
+const taskSelect = `
+  *,
+  companies:company_id(name),
+  teams:team_id(name),
+  assignee:assigned_to(full_name, email),
+  creator:created_by(full_name, email)
+`;
 
 function isMissingRelationError(message: string | undefined) {
   return (
@@ -67,6 +87,10 @@ function normalizeTask(data: unknown): Task | null {
   const assignee =
     task.assignee && typeof task.assignee === "object"
       ? (task.assignee as Record<string, unknown>)
+      : null;
+  const creator =
+    task.creator && typeof task.creator === "object"
+      ? (task.creator as Record<string, unknown>)
       : null;
 
   return {
@@ -107,12 +131,19 @@ function normalizeTask(data: unknown): Task | null {
     updated_at: typeof task.updated_at === "string" ? task.updated_at : "",
     company_name:
       company && typeof company.name === "string" ? company.name : null,
-    team_name:
-      team && typeof team.name === "string" ? team.name : null,
+    team_name: team && typeof team.name === "string" ? team.name : null,
     assignee_name:
       assignee && typeof assignee.full_name === "string"
         ? assignee.full_name
-        : null,
+        : typeof assignee?.email === "string"
+          ? assignee.email
+          : null,
+    creator_name:
+      creator && typeof creator.full_name === "string"
+        ? creator.full_name
+        : typeof creator?.email === "string"
+          ? creator.email
+          : null,
   };
 }
 
@@ -137,32 +168,39 @@ function calculateStats(tasks: Task[]): TaskStats {
       ["in_progress", "in_review"].includes(task.status),
     ).length,
     overdue: tasks.filter((task) => {
-      const dueDate = task.due_date;
-
-      if (!dueDate) {
+      if (!task.due_date) {
         return false;
       }
 
-      return dueDate < today && task.status !== "done";
+      return task.due_date < today && task.status !== "done";
     }).length,
   };
 }
 
-export async function getTaskPageData(): Promise<TaskPageData> {
+async function getTaskDirectoryData(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+): Promise<TaskDirectoryData> {
+  const [teamsResponse, companiesResponse, assigneesResponse] = await Promise.all([
+    supabase.from("teams").select("*").order("name"),
+    supabase.from("companies").select("*").order("name"),
+    supabase.from("profiles").select("*").order("full_name"),
+  ]);
+
+  return {
+    teams: normalizeRows<Team>(teamsResponse.data),
+    companies: normalizeRows<Company>(companiesResponse.data),
+    assignees: normalizeRows<Profile>(assigneesResponse.data),
+  };
+}
+
+export async function getTaskPageData(limit = 20): Promise<TaskPageData> {
   const supabase = await createSupabaseServerClient();
 
   const tasksResponse = await supabase
     .from("tasks")
-    .select(
-      `
-        *,
-        companies:company_id(name),
-        teams:team_id(name),
-        assignee:assigned_to(full_name)
-      `,
-    )
+    .select(taskSelect)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(limit);
 
   const tasksMissing =
     tasksResponse.error?.code === "42P01" ||
@@ -179,12 +217,7 @@ export async function getTaskPageData(): Promise<TaskPageData> {
     };
   }
 
-  const [teamsResponse, companiesResponse, assigneesResponse] = await Promise.all([
-    supabase.from("teams").select("*").order("name"),
-    supabase.from("companies").select("*").order("name"),
-    supabase.from("profiles").select("*").order("full_name"),
-  ]);
-
+  const directoryData = await getTaskDirectoryData(supabase);
   const tasks = Array.isArray(tasksResponse.data)
     ? tasksResponse.data
         .map((task) => normalizeTask(task))
@@ -192,12 +225,44 @@ export async function getTaskPageData(): Promise<TaskPageData> {
     : [];
 
   return {
+    ...directoryData,
     tasks,
-    teams: normalizeRows<Team>(teamsResponse.data),
-    companies: normalizeRows<Company>(companiesResponse.data),
-    assignees: normalizeRows<Profile>(assigneesResponse.data),
     stats: calculateStats(tasks),
     error: tasksMissing
+      ? "Run the latest Supabase task migration to enable the task module."
+      : null,
+  };
+}
+
+export async function getTaskDetailData(taskId: string): Promise<TaskDetailData> {
+  const supabase = await createSupabaseServerClient();
+
+  const taskResponse = await supabase
+    .from("tasks")
+    .select(taskSelect)
+    .eq("id", taskId)
+    .maybeSingle();
+
+  const taskMissing =
+    taskResponse.error?.code === "42P01" ||
+    isMissingRelationError(taskResponse.error?.message);
+
+  if (taskResponse.error && !taskMissing) {
+    return {
+      task: null,
+      teams: [],
+      companies: [],
+      assignees: [],
+      error: taskResponse.error.message,
+    };
+  }
+
+  const directoryData = await getTaskDirectoryData(supabase);
+
+  return {
+    ...directoryData,
+    task: normalizeTask(taskResponse.data),
+    error: taskMissing
       ? "Run the latest Supabase task migration to enable the task module."
       : null,
   };
@@ -219,6 +284,41 @@ export async function createTask(input: CreateTaskInput) {
     billable: input.billable,
     created_by: input.createdBy,
   });
+
+  return {
+    error: error?.message ?? null,
+  };
+}
+
+export async function updateTask(input: UpdateTaskInput) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("tasks")
+    .update({
+      title: input.title,
+      description: input.description || null,
+      company_id: input.companyId || null,
+      team_id: input.teamId || null,
+      assigned_to: input.assignedTo || null,
+      due_date: input.dueDate || null,
+      priority: input.priority,
+      status: input.status,
+      estimated_minutes: input.estimatedMinutes,
+      billable: input.billable,
+      completed_at: input.status === "done" ? new Date().toISOString() : null,
+    })
+    .eq("id", input.taskId);
+
+  return {
+    error: error?.message ?? null,
+  };
+}
+
+export async function deleteTask(taskId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 
   return {
     error: error?.message ?? null,

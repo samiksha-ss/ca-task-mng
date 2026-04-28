@@ -1,7 +1,5 @@
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
-import { SupabaseConfigAlert } from "@/features/auth/components/supabase-config-alert";
-import { isSupabaseConfigured } from "@/lib/env";
 
 export default function ResetPasswordPage() {
   return (
@@ -11,7 +9,6 @@ export default function ResetPasswordPage() {
         description="After opening the reset link from your email, set a new password for your workspace account."
       >
         <div className="space-y-5">
-          {!isSupabaseConfigured ? <SupabaseConfigAlert /> : null}
           <ResetPasswordForm />
         </div>
       </AuthCard>

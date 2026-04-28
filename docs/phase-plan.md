@@ -24,7 +24,27 @@
 - Add the first task migration with status, priority, and RLS policies.
 - Build the first task list and creation workflow inside the protected app.
 
-## Next
+## Step 6
 - Add task detail, edit, and delete flows.
-- Build the board and calendar experiences on top of task data.
-- Introduce team and member management UI.
+- Reuse shared task form fields between create and update workflows.
+- Respect role-aware delete access while keeping update flows available to assigned members.
+
+## Step 7
+- Build the board experience on top of task data.
+- Build the calendar experience on top of task data.
+- Replace the board and calendar placeholders with live protected views.
+
+## Step 8
+- Introduce live team and member management views.
+- Replace team, member, and admin user placeholders with role-aware directory pages.
+- Surface basic staffing and role distribution metrics on top of the protected shell.
+
+## Step 9
+- Add admin-facing team creation, manager assignment, and member update mutation flows.
+- Wire the admin user screen to real Supabase-backed server actions.
+- Revalidate teams and members views after role and staffing changes.
+
+## Next
+- Start tightening role-management workflows around real team data.
+- Add richer edit paths for teams and member assignments.
+- Introduce company management mutations and admin CRUD polish.

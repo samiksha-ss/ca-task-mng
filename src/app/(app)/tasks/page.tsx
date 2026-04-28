@@ -61,9 +61,8 @@ export default async function TasksPage() {
               Create a task
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              This is the first CRUD path for the task module. Later iterations
-              will add detail views, editing, board drag-and-drop, and calendar
-              syncing.
+              Add a new work item to the workspace. Existing tasks can now be
+              opened for full detail, editing, and role-aware deletion.
             </p>
           </div>
 

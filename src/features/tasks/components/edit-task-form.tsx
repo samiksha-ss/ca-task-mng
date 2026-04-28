@@ -3,8 +3,8 @@
 import { useActionState } from "react";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { AuthSubmitButton } from "@/features/auth/components/auth-submit-button";
-import type { Company, Profile, Team } from "@/types";
-import { createTaskAction, type TaskActionState } from "../actions";
+import type { Company, Profile, Task, Team } from "@/types";
+import { type TaskActionState, updateTaskAction } from "../actions";
 import { TaskFormFields } from "./task-form-fields";
 
 const initialState: TaskActionState = {
@@ -12,7 +12,8 @@ const initialState: TaskActionState = {
   success: null,
 };
 
-type CreateTaskFormProps = {
+type EditTaskFormProps = {
+  task: Task;
   teams: Team[];
   companies: Company[];
   assignees: Profile[];
@@ -22,7 +23,8 @@ type CreateTaskFormProps = {
   canChooseAssignee: boolean;
 };
 
-export function CreateTaskForm({
+export function EditTaskForm({
+  task,
   teams,
   companies,
   assignees,
@@ -30,12 +32,15 @@ export function CreateTaskForm({
   defaultAssigneeId,
   canChooseTeam,
   canChooseAssignee,
-}: CreateTaskFormProps) {
-  const [state, formAction] = useActionState(createTaskAction, initialState);
+}: EditTaskFormProps) {
+  const [state, formAction] = useActionState(updateTaskAction, initialState);
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="taskId" value={task.id} />
+
       <TaskFormFields
+        task={task}
         teams={teams}
         companies={companies}
         assignees={assignees}
@@ -52,10 +57,7 @@ export function CreateTaskForm({
         <AuthStatusMessage tone="success" message={state.success} />
       ) : null}
 
-      <AuthSubmitButton
-        idleLabel="Create task"
-        pendingLabel="Creating task..."
-      />
+      <AuthSubmitButton idleLabel="Save changes" pendingLabel="Saving..." />
     </form>
   );
 }

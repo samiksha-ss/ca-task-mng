@@ -4,6 +4,7 @@ export const FORGOT_PASSWORD_PATH = "/forgot-password";
 export const RESET_PASSWORD_PATH = "/reset-password";
 export const AUTH_CALLBACK_PATH = "/auth/callback";
 export const TASKS_PATH = "/tasks";
+export const getTaskDetailPath = (taskId: string) => `${TASKS_PATH}/${taskId}`;
 export const BOARD_PATH = "/board";
 export const CALENDAR_PATH = "/calendar";
 export const COMPANIES_PATH = "/companies";

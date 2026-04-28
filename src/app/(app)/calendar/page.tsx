@@ -1,11 +1,22 @@
-import { FeaturePlaceholder } from "@/components/layout/feature-placeholder";
+import { PageHeader } from "@/components/layout/page-header";
+import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
+import { TaskCalendar } from "@/features/tasks/components/task-calendar";
+import { getTaskPageData } from "@/services/task-service";
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  const { tasks, error } = await getTaskPageData(100);
+
   return (
-    <FeaturePlaceholder
-      eyebrow="Scheduling view"
-      title="Calendar"
-      description="Task deadlines and recurring work will surface here once the calendar integration layer is added."
-    />
+    <section className="space-y-6">
+      <PageHeader
+        eyebrow="Scheduling view"
+        title="Calendar"
+        description="Review task deadlines in a monthly calendar and agenda view so upcoming due work is easier to spot."
+      />
+
+      {error ? <AuthStatusMessage tone="info" message={error} /> : null}
+
+      <TaskCalendar tasks={tasks} />
+    </section>
   );
 }

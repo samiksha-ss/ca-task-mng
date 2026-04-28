@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
-import { SupabaseConfigAlert } from "@/features/auth/components/supabase-config-alert";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { WorkspaceNav } from "@/components/navigation/workspace-nav";
 import { requireCurrentUserContext } from "@/lib/auth/session";
@@ -22,14 +21,13 @@ export default async function AppLayout({
         <WorkspaceNav items={navigationItems} />
         <main className="flex min-w-0 flex-1 flex-col gap-6">
           <AppTopbar context={context} />
-        {!isSupabaseConfigured ? <SupabaseConfigAlert /> : null}
-        {context?.profileError ? (
-          <AuthStatusMessage
-            tone="info"
-            message={`Profile bootstrap is pending. Run the latest Supabase migration, then sign in again. Details: ${context.profileError}`}
-          />
-        ) : null}
-        {children}
+          {context?.profileError ? (
+            <AuthStatusMessage
+              tone="info"
+              message={`Profile bootstrap is pending. Run the latest Supabase migration, then sign in again. Details: ${context.profileError}`}
+            />
+          ) : null}
+          {children}
         </main>
       </div>
     </div>

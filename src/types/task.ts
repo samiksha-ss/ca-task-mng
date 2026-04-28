@@ -30,6 +30,7 @@ export type Task = {
   company_name?: string | null;
   team_name?: string | null;
   assignee_name?: string | null;
+  creator_name?: string | null;
 };
 
 export type TaskStats = {

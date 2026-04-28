@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { getTaskDetailPath } from "@/lib/constants/routes";
 import type { Task } from "@/types";
 import { TaskPriorityBadge } from "./task-priority-badge";
 import { TaskStatusBadge } from "./task-status-badge";
@@ -34,6 +36,12 @@ export function TaskList({ tasks }: TaskListProps) {
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                   {task.description ?? "No task description added yet."}
                 </p>
+                <Link
+                  href={getTaskDetailPath(task.id)}
+                  className="mt-3 inline-flex text-sm font-medium text-accent transition hover:opacity-80"
+                >
+                  Open task details
+                </Link>
               </div>
             </div>
 

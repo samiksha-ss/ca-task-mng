@@ -1,7 +1,5 @@
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { ForgotPasswordForm } from "@/features/auth/components/forgot-password-form";
-import { SupabaseConfigAlert } from "@/features/auth/components/supabase-config-alert";
-import { isSupabaseConfigured } from "@/lib/env";
 
 export default function ForgotPasswordPage() {
   return (
@@ -11,7 +9,6 @@ export default function ForgotPasswordPage() {
         description="Send a secure recovery link to the email address associated with your CA Task Manager account."
       >
         <div className="space-y-5">
-          {!isSupabaseConfigured ? <SupabaseConfigAlert /> : null}
           <ForgotPasswordForm />
         </div>
       </AuthCard>

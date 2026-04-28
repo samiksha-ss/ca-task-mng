@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { SignInForm } from "@/features/auth/components/sign-in-form";
-import { SupabaseConfigAlert } from "@/features/auth/components/supabase-config-alert";
 import { FORGOT_PASSWORD_PATH } from "@/lib/constants/routes";
-import { isSupabaseConfigured } from "@/lib/env";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -35,7 +33,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         }
       >
         <div className="space-y-5">
-          {!isSupabaseConfigured ? <SupabaseConfigAlert /> : null}
           <SignInForm nextPath={nextPath} />
         </div>
       </AuthCard>
