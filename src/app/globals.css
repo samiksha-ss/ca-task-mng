@@ -28,19 +28,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111827;
-    --foreground: #f9fafb;
-    --card: #182131;
-    --card-foreground: #f9fafb;
-    --muted: #243041;
-    --muted-foreground: #a5b1c2;
-    --border: #334155;
-    --ring: #5eead4;
-    --accent: #14b8a6;
-    --accent-foreground: #042f2e;
-  }
+.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+  --card: #182131;
+  --card-foreground: #f9fafb;
+  --muted: #243041;
+  --muted-foreground: #a5b1c2;
+  --border: #334155;
+  --ring: #5eead4;
+  --accent: #14b8a6;
+  --accent-foreground: #042f2e;
 }
 
 * {

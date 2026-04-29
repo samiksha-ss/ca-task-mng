@@ -1,22 +1,28 @@
-import { PageHeader } from "@/components/layout/page-header";
-import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
-import { TaskCalendar } from "@/features/tasks/components/task-calendar";
+import { getEvents } from "@/lib/queries/events";
 import { getTaskPageData } from "@/services/task-service";
+import { requireCurrentUserContext } from "@/lib/auth/session";
+import { isSupabaseConfigured } from "@/lib/env";
+import { CalendarView } from "@/components/calendar/calendar-view";
+import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 
 export default async function CalendarPage() {
-  const { tasks, error } = await getTaskPageData(100);
+  const context = isSupabaseConfigured ? await requireCurrentUserContext() : null;
+  const userId = context?.user?.id ?? "";
+
+  const [events, taskData] = await Promise.all([
+    getEvents(),
+    getTaskPageData(100)
+  ]);
 
   return (
-    <section className="space-y-6">
-      <PageHeader
-        eyebrow="Scheduling view"
-        title="Calendar"
-        description="Review task deadlines in a monthly calendar and agenda view so upcoming due work is easier to spot."
+    <section className="space-y-6 pb-8">
+      {taskData.error && <AuthStatusMessage tone="info" message={taskData.error} />}
+      
+      <CalendarView 
+        tasks={taskData.tasks} 
+        events={events} 
+        userId={userId} 
       />
-
-      {error ? <AuthStatusMessage tone="info" message={error} /> : null}
-
-      <TaskCalendar tasks={tasks} />
     </section>
   );
 }

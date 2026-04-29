@@ -5,6 +5,8 @@ import { WorkspaceNav } from "@/components/navigation/workspace-nav";
 import { requireCurrentUserContext } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getNavigationForRole } from "@/lib/permissions/navigation";
+import { getTaskDirectoryData } from "@/services/task-service";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({
   children,
@@ -14,11 +16,19 @@ export default async function AppLayout({
   const context = isSupabaseConfigured ? await requireCurrentUserContext() : null;
   const profile = context?.profile ?? null;
   const navigationItems = getNavigationForRole(profile?.role);
+  
+  // Fetch directory data for global components
+  const supabase = await createSupabaseServerClient();
+  const directoryData = await getTaskDirectoryData(supabase);
 
   return (
     <div className="min-h-screen bg-background px-4 py-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-7xl gap-6">
-        <WorkspaceNav items={navigationItems} />
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full gap-6">
+        <WorkspaceNav 
+          items={navigationItems} 
+          userId={context?.user?.id ?? ""}
+          directoryData={directoryData}
+        />
         <main className="flex min-w-0 flex-1 flex-col gap-6">
           <AppTopbar context={context} />
           {context?.profileError ? (

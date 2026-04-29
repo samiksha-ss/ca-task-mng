@@ -177,7 +177,7 @@ function calculateStats(tasks: Task[]): TaskStats {
   };
 }
 
-async function getTaskDirectoryData(
+export async function getTaskDirectoryData(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
 ): Promise<TaskDirectoryData> {
   const [teamsResponse, companiesResponse, assigneesResponse] = await Promise.all([
@@ -193,14 +193,19 @@ async function getTaskDirectoryData(
   };
 }
 
-export async function getTaskPageData(limit = 20): Promise<TaskPageData> {
+export async function getTaskPageData(limit = 20, search?: string): Promise<TaskPageData> {
   const supabase = await createSupabaseServerClient();
 
-  const tasksResponse = await supabase
+  let query = supabase
     .from("tasks")
     .select(taskSelect)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .order("created_at", { ascending: false });
+
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+  }
+
+  const tasksResponse = await query.limit(limit);
 
   const tasksMissing =
     tasksResponse.error?.code === "42P01" ||
