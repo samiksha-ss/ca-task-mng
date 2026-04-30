@@ -14,11 +14,21 @@ const initialState: TeamAdminActionState = {
 type MemberManagementFormProps = {
   members: MemberSummary[];
   teams: TeamSummary[];
+  initialMemberId?: string;
+  defaultRole?: string;
+  defaultTeamId?: string | null;
+  defaultJobTitle?: string | null;
+  defaultIsActive?: boolean;
 };
 
 export function MemberManagementForm({
   members,
   teams,
+  initialMemberId,
+  defaultRole,
+  defaultTeamId,
+  defaultJobTitle,
+  defaultIsActive,
 }: MemberManagementFormProps) {
   const [state, formAction] = useActionState(updateMemberAction, initialState);
 
@@ -31,7 +41,7 @@ export function MemberManagementForm({
         <select
           id="memberId"
           name="memberId"
-          defaultValue=""
+          defaultValue={initialMemberId ?? ""}
           className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-accent"
           required
         >
@@ -54,7 +64,7 @@ export function MemberManagementForm({
           <select
             id="role"
             name="role"
-            defaultValue="member"
+            defaultValue={defaultRole ?? "member"}
             className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-accent"
           >
             <option value="admin">admin</option>
@@ -70,7 +80,7 @@ export function MemberManagementForm({
           <select
             id="teamId"
             name="teamId"
-            defaultValue=""
+            defaultValue={defaultTeamId ?? ""}
             className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-accent"
           >
             <option value="">No team assigned</option>
@@ -90,13 +100,19 @@ export function MemberManagementForm({
         <input
           id="jobTitle"
           name="jobTitle"
+          defaultValue={defaultJobTitle ?? ""}
           placeholder="Senior Associate"
           className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-accent"
         />
       </div>
 
       <label className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 text-sm">
-        <input type="checkbox" name="isActive" defaultChecked className="h-4 w-4" />
+        <input
+          type="checkbox"
+          name="isActive"
+          defaultChecked={defaultIsActive ?? true}
+          className="h-4 w-4"
+        />
         Keep this member active in the workspace
       </label>
 

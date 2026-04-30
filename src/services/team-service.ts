@@ -17,6 +17,18 @@ export type TeamDirectoryData = {
   error: string | null;
 };
 
+export type MemberDetailData = {
+  member: MemberSummary | null;
+  teams: Team[];
+  error: string | null;
+};
+
+export type TeamDetailData = {
+  team: TeamSummary | null;
+  members: MemberSummary[];
+  error: string | null;
+};
+
 type CreateTeamInput = {
   name: string;
   description?: string;
@@ -34,6 +46,12 @@ type UpdateMemberInput = {
   teamId: string | null;
   jobTitle?: string;
   isActive: boolean;
+};
+
+type UpdateTeamInput = {
+  teamId: string;
+  name: string;
+  description?: string;
 };
 
 function isMissingRelationError(message: string | undefined) {
@@ -191,6 +209,89 @@ export async function getTeamDirectoryData(): Promise<TeamDirectoryData> {
   };
 }
 
+export async function getMemberDetailData(memberId: string): Promise<MemberDetailData> {
+  const supabase = await createSupabaseServerClient();
+
+  const [memberResponse, teamsResponse] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("*, teams:team_id(name)")
+      .eq("id", memberId)
+      .maybeSingle(),
+    supabase.from("teams").select("*").order("name"),
+  ]);
+
+  const missing =
+    memberResponse.error?.code === "42P01" ||
+    isMissingRelationError(memberResponse.error?.message) ||
+    teamsResponse.error?.code === "42P01" ||
+    isMissingRelationError(teamsResponse.error?.message);
+
+  if ((memberResponse.error && !missing) || (teamsResponse.error && !missing)) {
+    return {
+      member: null,
+      teams: [],
+      error: memberResponse.error?.message ?? teamsResponse.error?.message ?? "Unable to load data.",
+    };
+  }
+
+  return {
+    member: normalizeMemberSummary(memberResponse.data),
+    teams: Array.isArray(teamsResponse.data) ? teamsResponse.data : [],
+    error: missing
+      ? "Run the latest Supabase migrations to enable member and team management data."
+      : null,
+  };
+}
+
+export async function getTeamDetailData(teamId: string): Promise<TeamDetailData> {
+  const supabase = await createSupabaseServerClient();
+
+  const [teamResponse, membersResponse] = await Promise.all([
+    supabase
+      .from("teams")
+      .select("*, manager:manager_id(full_name, email)")
+      .eq("id", teamId)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("*, teams:team_id(name)")
+      .eq("team_id", teamId)
+      .order("full_name"),
+  ]);
+
+  const missing =
+    teamResponse.error?.code === "42P01" ||
+    isMissingRelationError(teamResponse.error?.message) ||
+    membersResponse.error?.code === "42P01" ||
+    isMissingRelationError(membersResponse.error?.message);
+
+  if ((teamResponse.error && !missing) || (membersResponse.error && !missing)) {
+    return {
+      team: null,
+      members: [],
+      error: teamResponse.error?.message ?? membersResponse.error?.message ?? "Unable to load data.",
+    };
+  }
+
+  const members = Array.isArray(membersResponse.data)
+    ? membersResponse.data
+        .map((m) => normalizeMemberSummary(m))
+        .filter((m): m is MemberSummary => m !== null)
+    : [];
+
+  const memberCounts = new Map<string, number>();
+  memberCounts.set(teamId, members.length);
+
+  return {
+    team: normalizeTeamSummary(teamResponse.data, memberCounts),
+    members,
+    error: missing
+      ? "Run the latest Supabase migrations to enable team and member management data."
+      : null,
+  };
+}
+
 export async function createTeam(input: CreateTeamInput) {
   const supabase = await createSupabaseServerClient();
 
@@ -232,6 +333,32 @@ export async function updateMemberProfileAdmin(input: UpdateMemberInput) {
       is_active: input.isActive,
     })
     .eq("id", input.memberId);
+
+  return {
+    error: error?.message ?? null,
+  };
+}
+
+export async function updateTeam(input: UpdateTeamInput) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("teams")
+    .update({
+      name: input.name,
+      description: input.description || null,
+    })
+    .eq("id", input.teamId);
+
+  return {
+    error: error?.message ?? null,
+  };
+}
+
+export async function deleteTeam(teamId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase.from("teams").delete().eq("id", teamId);
 
   return {
     error: error?.message ?? null,

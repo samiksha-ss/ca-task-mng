@@ -20,17 +20,17 @@ export default async function TeamsPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Visible teams"
+          title="Visible teams"
           value={String(teams.length)}
           hint="Teams available within your current role scope"
         />
         <StatCard
-          label="Staffed teams"
+          title="Staffed teams"
           value={String(staffedTeams)}
           hint="Teams with at least one visible member assigned"
         />
         <StatCard
-          label="Visible members"
+          title="Visible members"
           value={String(members.length)}
           hint="People contributing across the teams you can access"
         />

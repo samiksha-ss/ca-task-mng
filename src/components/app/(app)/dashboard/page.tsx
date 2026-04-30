@@ -13,6 +13,7 @@ import {
   getTaskDetailPath,
 } from "@/lib/constants/routes";
 import { pageIdentities } from "@/lib/constants/page-identities";
+import { toneMap } from "@/lib/ui/tone-map";
 import { getDashboardPageData } from "@/services/dashboard-service";
 
 export default async function DashboardPage() {
@@ -31,7 +32,7 @@ export default async function DashboardPage() {
         title="Dashboard"
         description={data.summaryBody}
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
         action={
           <Link
             href={TASKS_PATH}
@@ -132,7 +133,7 @@ export default async function DashboardPage() {
             {data.metrics.slice(0, 2).map((metric) => (
               <StatCard
                 key={metric.label}
-                label={metric.label}
+                title={metric.label}
                 value={metric.value}
                 hint={metric.hint}
               />

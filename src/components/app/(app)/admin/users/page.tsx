@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { MemberManagementForm } from "@/features/members/components/member-management-form";
 import { MemberList } from "@/features/members/components/member-list";
@@ -23,29 +24,29 @@ export default async function AdminUsersPage() {
         title="User management"
         description="Review company-wide people and team visibility before deeper onboarding, role-change, and assignment workflows are added."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
-          label="Total users"
+          title="Total users"
           value={String(members.length)}
           hint="Profiles currently available to the admin role"
         />
         <StatCard
-          label="Admins"
+          title="Admins"
           value={String(admins)}
           hint="Users with company-wide access rights"
         />
         <StatCard
-          label="Teams"
+          title="Teams"
           value={String(teams.length)}
           hint="Internal teams currently configured"
         />
         <StatCard
-          label="Unassigned"
+          title="Unassigned"
           value={String(unassignedMembers)}
           hint="Members not yet linked to a team"
         />

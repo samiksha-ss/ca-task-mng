@@ -91,6 +91,7 @@ export async function getTeamActivity() {
       full_name,
       avatar_url,
       role,
+      email,
       tasks:tasks(id, status)
     `)
     .limit(10);
@@ -100,7 +101,7 @@ export async function getTeamActivity() {
   return data.map(profile => ({
     id: profile.id,
     name: profile.full_name || profile.email,
-    avatar: profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('') : 'U',
+    avatar: profile.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('') : 'U',
     role: profile.role,
     tasksCompleted: profile.tasks?.filter((t: any) => t.status === 'done').length || 0,
     activeTasks: profile.tasks?.filter((t: any) => t.status !== 'done').length || 0

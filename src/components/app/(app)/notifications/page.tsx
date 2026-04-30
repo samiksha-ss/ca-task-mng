@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
@@ -30,24 +31,24 @@ export default async function NotificationsPage() {
         title="Notifications"
         description="This view surfaces live attention areas derived from task deadlines, assignments, and workflow state in your visible scope."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {dashboard.error ? <AuthStatusMessage tone="info" message={dashboard.error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Overdue alerts"
+          title="Overdue alerts"
           value={String(dashboard.overdueTasks.length)}
           hint="Visible tasks already past their due date"
         />
         <StatCard
-          label="Due soon alerts"
+          title="Due soon alerts"
           value={String(dashboard.dueSoonTasks.length)}
           hint="Visible tasks due within the next 7 days"
         />
         <StatCard
-          label="Assigned to you"
+          title="Assigned to you"
           value={String(assignedToMe.length)}
           hint="Visible tasks currently assigned to your user"
         />

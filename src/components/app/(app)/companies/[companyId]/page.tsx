@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { DeleteCompanyForm } from "@/features/companies/components/delete-company-form";
 import { EditCompanyForm } from "@/features/companies/components/edit-company-form";
@@ -31,7 +32,7 @@ export default async function CompanyDetailPage({
           title="Company details"
           description="Open a client company to review relationship details and admin controls."
           icon={<IdentityIcon className="h-5 w-5" />}
-          tone={identity.tone}
+          tone={toneMap[identity.tone]}
           compact
         />
         <AuthStatusMessage tone="info" message={error} />
@@ -52,7 +53,7 @@ export default async function CompanyDetailPage({
         title={company.name}
         description="Review client context, contact coverage, and admin management controls."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
         backHref={COMPANIES_PATH}
         backLabel="Back to companies"
       />

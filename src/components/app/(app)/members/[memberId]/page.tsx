@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { MemberManagementForm } from "@/features/members/components/member-management-form";
 import { requireCurrentUserContext } from "@/lib/auth/session";
@@ -27,7 +28,7 @@ export default async function MemberDetailPage({
           title="Member details"
           description="Open a member profile to review assignment and role information."
           icon={<IdentityIcon className="h-5 w-5" />}
-          tone={identity.tone}
+          tone={toneMap[identity.tone]}
           compact
         />
         <AuthStatusMessage tone="info" message={error} />
@@ -48,7 +49,7 @@ export default async function MemberDetailPage({
         title={member.full_name ?? member.email}
         description="Review team assignment, role, and admin management controls for this member."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
         backHref={MEMBERS_PATH}
         backLabel="Back to members"
       />
@@ -105,7 +106,7 @@ export default async function MemberDetailPage({
             <div className="mt-6">
               <MemberManagementForm
                 members={directory.members}
-                teams={teams}
+                teams={directory.teams}
                 initialMemberId={member.id}
                 defaultRole={member.role}
                 defaultTeamId={member.team_id}

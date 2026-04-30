@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { DeleteTaskForm } from "@/features/tasks/components/delete-task-form";
 import { EditTaskForm } from "@/features/tasks/components/edit-task-form";
@@ -46,7 +47,7 @@ export default async function TaskDetailPage({
           title="Task details"
           description="Open a task to review context, make updates, and manage its lifecycle."
           icon={<IdentityIcon className="h-5 w-5" />}
-          tone={identity.tone}
+          tone={toneMap[identity.tone]}
           compact
         />
         <AuthStatusMessage tone="info" message={error} />
@@ -69,7 +70,7 @@ export default async function TaskDetailPage({
         title={task.title}
         description="Review task ownership, status, and delivery details in one place."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
         backHref={TASKS_PATH}
         backLabel="Back to tasks"
       />

@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { CreateTaskForm } from "@/features/tasks/components/create-task-form";
 import { TaskList } from "@/features/tasks/components/task-list";
@@ -24,29 +25,29 @@ export default async function TasksPage() {
         title="Tasks"
         description="Start the first real task workflow: create assignments, monitor progress, and organize work by company, team, and assignee."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Total tasks"
+          title="Total tasks"
           value={String(stats.total)}
           hint="Tasks currently visible to your role"
         />
         <StatCard
-          label="Completed"
+          title="Completed"
           value={String(stats.completed)}
           hint="Finished work items in your current scope"
         />
         <StatCard
-          label="In progress"
+          title="In progress"
           value={String(stats.inProgress)}
           hint="Tasks actively moving through execution"
         />
         <StatCard
-          label="Overdue"
+          title="Overdue"
           value={String(stats.overdue)}
           hint="Open items past their due date"
         />

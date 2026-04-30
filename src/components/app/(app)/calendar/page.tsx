@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TaskCalendar } from "@/features/tasks/components/task-calendar";
 import { pageIdentities } from "@/lib/constants/page-identities";
@@ -16,7 +17,7 @@ export default async function CalendarPage() {
         title="Calendar"
         description="Review task deadlines in a monthly calendar and agenda view so upcoming due work is easier to spot."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}

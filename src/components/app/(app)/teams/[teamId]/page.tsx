@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { MemberList } from "@/features/members/components/member-list";
 import { TeamDeleteForm } from "@/features/teams/components/team-delete-form";
@@ -29,7 +30,7 @@ export default async function TeamDetailPage({
           title="Team details"
           description="Open a team to review staffing and edit ownership details."
           icon={<IdentityIcon className="h-5 w-5" />}
-          tone={identity.tone}
+          tone={toneMap[identity.tone]}
           compact
         />
         <AuthStatusMessage tone="info" message={error} />
@@ -50,7 +51,7 @@ export default async function TeamDetailPage({
         title={team.name}
         description="Review staffing, manager ownership, and team-level edit controls."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
         backHref={TEAMS_PATH}
         backLabel="Back to teams"
       />

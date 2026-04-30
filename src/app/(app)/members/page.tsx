@@ -21,17 +21,17 @@ export default async function MembersPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Visible members"
+          title="Visible members"
           value={String(members.length)}
           hint="Profiles currently visible to your role"
         />
         <StatCard
-          label="Active members"
+          title="Active members"
           value={String(activeMembers)}
           hint="Profiles marked active in the current scope"
         />
         <StatCard
-          label="Managers"
+          title="Managers"
           value={String(managers)}
           hint="Visible users currently holding a manager role"
         />

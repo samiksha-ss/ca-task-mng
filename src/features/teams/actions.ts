@@ -6,8 +6,18 @@ import {
   assignTeamManager,
   createTeam,
   updateMemberProfileAdmin,
+  updateTeam,
+  deleteTeam,
 } from "@/services/team-service";
-import { assignManagerSchema, createTeamSchema, updateMemberSchema } from "./schema";
+import { redirect } from "next/navigation";
+import { TEAMS_PATH } from "@/lib/constants/routes";
+import { 
+  assignManagerSchema, 
+  createTeamSchema, 
+  updateMemberSchema,
+  updateTeamSchema,
+  deleteTeamSchema,
+} from "./schema";
 
 export type TeamAdminActionState = {
   error: string | null;
@@ -160,4 +170,84 @@ export async function updateMemberAction(
     ...initialState,
     success: "Member updated successfully.",
   };
+}
+
+export async function updateTeamAction(
+  _previousState: TeamAdminActionState,
+  formData: FormData,
+): Promise<TeamAdminActionState> {
+  const context = await requireCurrentUserContext();
+
+  if (!requireAdminRole(context.profile?.role)) {
+    return {
+      ...initialState,
+      error: "Only admins can update teams.",
+    };
+  }
+
+  const parsed = updateTeamSchema.safeParse({
+    teamId: formData.get("teamId"),
+    name: formData.get("name"),
+    description: formData.get("description"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ...initialState,
+      error: parsed.error.issues[0]?.message ?? "Unable to update team.",
+    };
+  }
+
+  const { error } = await updateTeam(parsed.data);
+
+  if (error) {
+    return {
+      ...initialState,
+      error,
+    };
+  }
+
+  revalidateManagementPaths();
+
+  return {
+    ...initialState,
+    success: "Team updated successfully.",
+  };
+}
+
+export async function deleteTeamAction(
+  _previousState: TeamAdminActionState,
+  formData: FormData,
+): Promise<TeamAdminActionState> {
+  const context = await requireCurrentUserContext();
+
+  if (!requireAdminRole(context.profile?.role)) {
+    return {
+      ...initialState,
+      error: "Only admins can delete teams.",
+    };
+  }
+
+  const parsed = deleteTeamSchema.safeParse({
+    teamId: formData.get("teamId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ...initialState,
+      error: parsed.error.issues[0]?.message ?? "Unable to delete team.",
+    };
+  }
+
+  const { error } = await deleteTeam(parsed.data.teamId);
+
+  if (error) {
+    return {
+      ...initialState,
+      error,
+    };
+  }
+
+  revalidateManagementPaths();
+  redirect(TEAMS_PATH);
 }

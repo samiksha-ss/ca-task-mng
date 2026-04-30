@@ -12,12 +12,12 @@ import {
   Users,
   UsersRound,
 } from "lucide-react";
-import type { PageHeaderTone } from "@/components/layout/page-header";
+import { type PageTone } from "@/lib/ui/tone-map";
 
 export type PageIdentity = {
   eyebrow: string;
   icon: LucideIcon;
-  tone: PageHeaderTone;
+  tone: PageTone;
 };
 
 export const pageIdentities = {

@@ -17,3 +17,13 @@ export const updateMemberSchema = z.object({
   jobTitle: z.string().trim().optional(),
   isActive: z.boolean(),
 });
+
+export const updateTeamSchema = z.object({
+  teamId: z.string().uuid("Select a valid team."),
+  name: z.string().trim().min(2, "Team name must be at least 2 characters."),
+  description: z.string().trim().optional(),
+});
+
+export const deleteTeamSchema = z.object({
+  teamId: z.string().uuid("Select a valid team."),
+});

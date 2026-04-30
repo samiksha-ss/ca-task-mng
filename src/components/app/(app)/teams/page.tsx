@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TeamGrid } from "@/features/teams/components/team-grid";
 import { pageIdentities } from "@/lib/constants/page-identities";
@@ -18,24 +19,24 @@ export default async function TeamsPage() {
         title="Teams"
         description="Review ownership boundaries, manager coverage, and which teams already have active staffing."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Visible teams"
+          title="Visible teams"
           value={String(teams.length)}
           hint="Teams available within your current role scope"
         />
         <StatCard
-          label="Staffed teams"
+          title="Staffed teams"
           value={String(staffedTeams)}
           hint="Teams with at least one visible member assigned"
         />
         <StatCard
-          label="Visible members"
+          title="Visible members"
           value={String(members.length)}
           hint="People contributing across the teams you can access"
         />

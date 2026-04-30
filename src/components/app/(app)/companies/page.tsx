@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { CreateCompanyForm } from "@/features/companies/components/create-company-form";
 import { EditCompanyForm } from "@/features/companies/components/edit-company-form";
@@ -24,24 +25,24 @@ export default async function CompaniesPage() {
         title="Companies"
         description="Track client company context, relationship priority, and internal contact coverage in one shared workspace."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Visible companies"
+          title="Visible companies"
           value={String(companies.length)}
           hint="Companies available in your current access scope"
         />
         <StatCard
-          label="Active"
+          title="Active"
           value={String(activeCompanies)}
           hint="Client records currently marked active"
         />
         <StatCard
-          label="VIP"
+          title="VIP"
           value={String(vipCompanies)}
           hint="Highest-priority client relationships right now"
         />

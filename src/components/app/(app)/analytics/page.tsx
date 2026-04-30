@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
@@ -38,29 +39,29 @@ export default async function AnalyticsPage() {
         title="Analytics"
         description="Review live workload, completion, staffing, and delivery pressure using the data visible to your current role."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {dashboard.error ? <AuthStatusMessage tone="info" message={dashboard.error} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         <StatCard
-          label="Completion rate"
+          title="Completion rate"
           value={`${completionRate}%`}
           hint="Share of visible tasks already completed"
         />
         <StatCard
-          label="Unassigned tasks"
+          title="Unassigned tasks"
           value={String(unassignedTasks)}
           hint="Open work items that do not yet have an assignee"
         />
         <StatCard
-          label="Billable tasks"
+          title="Billable tasks"
           value={String(billableTasks)}
           hint="Visible tasks currently marked billable"
         />
         <StatCard
-          label="Blocked tasks"
+          title="Blocked tasks"
           value={String(blockedTasks.length)}
           hint="Visible work currently waiting on a dependency"
         />

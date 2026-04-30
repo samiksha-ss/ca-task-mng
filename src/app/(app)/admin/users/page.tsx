@@ -25,22 +25,22 @@ export default async function AdminUsersPage() {
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
-          label="Total users"
+          title="Total users"
           value={String(members.length)}
           hint="Profiles currently available to the admin role"
         />
         <StatCard
-          label="Admins"
+          title="Admins"
           value={String(admins)}
           hint="Users with company-wide access rights"
         />
         <StatCard
-          label="Teams"
+          title="Teams"
           value={String(teams.length)}
           hint="Internal teams currently configured"
         />
         <StatCard
-          label="Unassigned"
+          title="Unassigned"
           value={String(unassignedMembers)}
           hint="Members not yet linked to a team"
         />

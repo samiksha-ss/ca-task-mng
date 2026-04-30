@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/layout/page-header";
+import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { ProfileSettingsForm } from "@/features/settings/components/profile-settings-form";
 import { requireCurrentUserContext } from "@/lib/auth/session";
@@ -21,7 +22,7 @@ export default async function SettingsPage() {
         title="Settings"
         description="Manage your personal profile details and review the current access context for this workspace account."
         icon={<IdentityIcon className="h-5 w-5" />}
-        tone={identity.tone}
+        tone={toneMap[identity.tone]}
       />
 
       {error ? <AuthStatusMessage tone="info" message={error} /> : null}
