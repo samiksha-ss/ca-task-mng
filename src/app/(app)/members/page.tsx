@@ -4,8 +4,11 @@ import { AuthStatusMessage } from "@/features/auth/components/auth-status-messag
 import { MemberList } from "@/features/members/components/member-list";
 import { getTeamDirectoryData } from "@/services/team-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function MembersPage() {
-  const { members, error } = await getTeamDirectoryData();
+  const userContext = await getUserContext();
+  const { members, error } = await getTeamDirectoryData(userContext);
   const activeMembers = members.filter((member) => member.is_active).length;
   const managers = members.filter((member) => member.role === "manager").length;
 

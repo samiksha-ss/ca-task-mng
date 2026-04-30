@@ -4,8 +4,11 @@ import { AuthStatusMessage } from "@/features/auth/components/auth-status-messag
 import { TeamGrid } from "@/features/teams/components/team-grid";
 import { getTeamDirectoryData } from "@/services/team-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function TeamsPage() {
-  const { teams, members, error } = await getTeamDirectoryData();
+  const userContext = await getUserContext();
+  const { teams, members, error } = await getTeamDirectoryData(userContext);
   const staffedTeams = teams.filter((team) => team.member_count > 0).length;
 
   return (

@@ -6,7 +6,7 @@ import { DeleteTaskForm } from "@/features/tasks/components/delete-task-form";
 import { EditTaskForm } from "@/features/tasks/components/edit-task-form";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { TASKS_PATH } from "@/lib/constants/routes";
 import { getTaskDetailData } from "@/services/task-service";
@@ -35,9 +35,10 @@ export default async function TaskDetailPage({
   const identity = pageIdentities.tasks;
   const IdentityIcon = identity.icon;
   const { taskId } = await params;
+  const userContext = await getUserContext();
   const context = await requireCurrentUserContext();
   const { task, teams, companies, assignees, error } =
-    await getTaskDetailData(taskId);
+    await getTaskDetailData(userContext, taskId);
 
   if (error) {
     return (

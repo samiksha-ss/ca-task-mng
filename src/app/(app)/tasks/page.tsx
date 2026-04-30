@@ -11,15 +11,18 @@ type TasksPageProps = {
   searchParams: Promise<{ search?: string; status?: string; filter?: string }>;
 };
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const search = params.search;
   const status = params.status;
   const filter = params.filter;
   
+  const userContext = await getUserContext();
   const context = await requireCurrentUserContext();
   const { tasks, teams, companies, assignees, stats, error } =
-    await getTaskPageData(100, { search, status, filter });
+    await getTaskPageData(userContext, 100, { search, status, filter });
 
   const canChooseTeam = context.profile?.role === "admin";
   const canChooseAssignee = context.profile?.role !== "member";

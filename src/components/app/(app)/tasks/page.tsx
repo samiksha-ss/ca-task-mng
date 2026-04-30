@@ -4,7 +4,7 @@ import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { CreateTaskForm } from "@/features/tasks/components/create-task-form";
 import { TaskList } from "@/features/tasks/components/task-list";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTaskPageData } from "@/services/task-service";
 
@@ -15,10 +15,11 @@ export default async function TasksPage({
 }) {
   const identity = pageIdentities.tasks;
   const IdentityIcon = identity.icon;
+  const userContext = await getUserContext();
   const context = await requireCurrentUserContext();
   const params = await searchParams;
   const { tasks, teams, companies, assignees, stats, error } =
-    await getTaskPageData(100, {
+    await getTaskPageData(userContext, 100, {
       status: typeof params.status === "string" ? params.status : undefined,
       filter: typeof params.filter === "string" ? params.filter : undefined,
     });

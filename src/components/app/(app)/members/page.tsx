@@ -6,10 +6,13 @@ import { MemberList } from "@/features/members/components/member-list";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTeamDirectoryData } from "@/services/team-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function MembersPage() {
   const identity = pageIdentities.members;
   const IdentityIcon = identity.icon;
-  const { members, error } = await getTeamDirectoryData();
+  const userContext = await getUserContext();
+  const { members, error } = await getTeamDirectoryData(userContext);
   const activeMembers = members.filter((member) => member.is_active).length;
   const managers = members.filter((member) => member.role === "manager").length;
 

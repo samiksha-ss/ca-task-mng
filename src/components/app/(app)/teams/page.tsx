@@ -6,10 +6,13 @@ import { TeamGrid } from "@/features/teams/components/team-grid";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTeamDirectoryData } from "@/services/team-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function TeamsPage() {
   const identity = pageIdentities.teams;
   const IdentityIcon = identity.icon;
-  const { teams, members, error } = await getTeamDirectoryData();
+  const userContext = await getUserContext();
+  const { teams, members, error } = await getTeamDirectoryData(userContext);
   const staffedTeams = teams.filter((team) => team.member_count > 0).length;
 
   return (

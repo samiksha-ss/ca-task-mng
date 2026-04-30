@@ -1,3 +1,4 @@
+import type { UserContext } from "@/lib/queries/tasks";
 import type { CurrentUserContext } from "@/types/auth";
 import type { Company, Task } from "@/types";
 import { getCompanyPageData } from "./company-service";
@@ -72,12 +73,15 @@ function buildRoleSummary(context: CurrentUserContext, counts: {
   };
 }
 
+
+
 export async function getDashboardPageData(
+  userContext: UserContext,
   context: CurrentUserContext,
 ): Promise<DashboardPageData> {
   const [taskData, teamData, companyData] = await Promise.all([
-    getTaskPageData(200),
-    getTeamDirectoryData(),
+    getTaskPageData(userContext, 200),
+    getTeamDirectoryData(userContext),
     getCompanyPageData(),
   ]);
 

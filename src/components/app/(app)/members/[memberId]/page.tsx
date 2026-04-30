@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { MemberManagementForm } from "@/features/members/components/member-management-form";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { MEMBERS_PATH } from "@/lib/constants/routes";
 import { getMemberDetailData, getTeamDirectoryData } from "@/services/team-service";
@@ -17,8 +17,9 @@ export default async function MemberDetailPage({
   const IdentityIcon = identity.icon;
   const { memberId } = await params;
   const context = await requireCurrentUserContext();
+  const userContext = await getUserContext();
   const { member, teams, error } = await getMemberDetailData(memberId);
-  const directory = await getTeamDirectoryData();
+  const directory = await getTeamDirectoryData(userContext);
 
   if (error) {
     return (

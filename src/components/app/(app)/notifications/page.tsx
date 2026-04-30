@@ -5,7 +5,7 @@ import { toneMap } from "@/lib/ui/tone-map";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { getTaskDetailPath } from "@/lib/constants/routes";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getDashboardPageData } from "@/services/dashboard-service";
@@ -14,10 +14,11 @@ import { getTaskPageData } from "@/services/task-service";
 export default async function NotificationsPage() {
   const identity = pageIdentities.notifications;
   const IdentityIcon = identity.icon;
+  const userContext = await getUserContext();
   const context = await requireCurrentUserContext();
   const [dashboard, taskData] = await Promise.all([
-    getDashboardPageData(context),
-    getTaskPageData(200),
+    getDashboardPageData(userContext, context),
+    getTaskPageData(userContext, 200),
   ]);
 
   const tasks = taskData.tasks;

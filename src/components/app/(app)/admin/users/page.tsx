@@ -10,10 +10,13 @@ import { TeamGrid } from "@/features/teams/components/team-grid";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTeamDirectoryData } from "@/services/team-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function AdminUsersPage() {
   const identity = pageIdentities.admin;
   const IdentityIcon = identity.icon;
-  const { teams, members, error } = await getTeamDirectoryData();
+  const userContext = await getUserContext();
+  const { teams, members, error } = await getTeamDirectoryData(userContext);
   const admins = members.filter((member) => member.role === "admin").length;
   const unassignedMembers = members.filter((member) => !member.team_id).length;
 

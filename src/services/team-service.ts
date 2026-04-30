@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AppRole, Profile, Team } from "@/types";
+import { type UserContext } from "@/lib/queries/tasks";
 
 export type TeamSummary = Team & {
   manager_name: string | null;
@@ -145,18 +146,40 @@ function normalizeMemberSummary(data: unknown): MemberSummary | null {
   };
 }
 
-export async function getTeamDirectoryData(): Promise<TeamDirectoryData> {
+export async function getTeamDirectoryData(userContext: UserContext): Promise<TeamDirectoryData> {
   const supabase = await createSupabaseServerClient();
 
+  let teamsQuery = supabase
+    .from("teams")
+    .select("*, manager:manager_id(full_name, email)")
+    .order("name");
+
+  let profilesQuery = supabase
+    .from("profiles")
+    .select("*, teams:team_id(name)")
+    .order("full_name");
+
+  // Apply Role Filters
+  if (userContext.role === "manager") {
+    if (userContext.team_id) {
+      teamsQuery = teamsQuery.eq("id", userContext.team_id);
+      profilesQuery = profilesQuery.eq("team_id", userContext.team_id);
+    }
+  } else if (userContext.role === "member") {
+    if (userContext.team_id) {
+      teamsQuery = teamsQuery.eq("id", userContext.team_id);
+      profilesQuery = profilesQuery.eq("team_id", userContext.team_id);
+    } else {
+      // If member has no team, they only see themselves? 
+      // Or maybe nothing in teams.
+      teamsQuery = teamsQuery.eq("id", "none"); 
+      profilesQuery = profilesQuery.eq("id", userContext.id);
+    }
+  }
+
   const [teamsResponse, membersResponse] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("*, manager:manager_id(full_name, email)")
-      .order("name"),
-    supabase
-      .from("profiles")
-      .select("*, teams:team_id(name)")
-      .order("full_name"),
+    teamsQuery,
+    profilesQuery,
   ]);
 
   const teamsMissing =

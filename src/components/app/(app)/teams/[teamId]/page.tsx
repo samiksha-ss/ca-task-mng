@@ -5,7 +5,7 @@ import { AuthStatusMessage } from "@/features/auth/components/auth-status-messag
 import { MemberList } from "@/features/members/components/member-list";
 import { TeamDeleteForm } from "@/features/teams/components/team-delete-form";
 import { TeamEditForm } from "@/features/teams/components/team-edit-form";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { TEAMS_PATH } from "@/lib/constants/routes";
 import { getTeamDetailData, getTeamDirectoryData } from "@/services/team-service";
@@ -19,8 +19,9 @@ export default async function TeamDetailPage({
   const IdentityIcon = identity.icon;
   const { teamId } = await params;
   const context = await requireCurrentUserContext();
+  const userContext = await getUserContext();
   const { team, members, error } = await getTeamDetailData(teamId);
-  const directory = await getTeamDirectoryData();
+  const directory = await getTeamDirectoryData(userContext);
 
   if (error) {
     return (

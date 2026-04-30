@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import {
   COMPANIES_PATH,
   MEMBERS_PATH,
@@ -19,8 +19,9 @@ import { getDashboardPageData } from "@/services/dashboard-service";
 export default async function DashboardPage() {
   const identity = pageIdentities.dashboard;
   const IdentityIcon = identity.icon;
+  const userContext = await getUserContext();
   const context = await requireCurrentUserContext();
-  const data = await getDashboardPageData(context);
+  const data = await getDashboardPageData(userContext, context);
   const displayName = context.profile?.full_name ?? context.profile?.email ?? "Team";
   const metricNumbers = data.metrics.map((metric) => Number(metric.value) || 0);
   const maxMetric = Math.max(...metricNumbers, 1);

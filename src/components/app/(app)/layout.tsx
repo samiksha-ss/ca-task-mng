@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AuthStatusMessage } from "@/features/auth/components/auth-status-message";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { WorkspaceNav } from "@/components/navigation/workspace-nav";
-import { requireCurrentUserContext } from "@/lib/auth/session";
+import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getNavigationForRole } from "@/lib/permissions/navigation";
 import { getTeamDirectoryData } from "@/services/team-service";
@@ -17,9 +17,10 @@ export default async function AppLayout({
   const profile = context?.profile ?? null;
   const navigationItems = getNavigationForRole(profile?.role);
 
+  const userContext = await getUserContext();
   // Fetch directory data for the creation modal in WorkspaceNav
   const [teamData, companyData] = await Promise.all([
-    getTeamDirectoryData(),
+    getTeamDirectoryData(userContext),
     getCompanyPageData(),
   ]);
 

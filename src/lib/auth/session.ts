@@ -54,6 +54,15 @@ export async function requireCurrentUserContext() {
   return context;
 }
 
+export async function getUserContext() {
+  const context = await requireCurrentUserContext();
+  return {
+    id: context.user.id,
+    role: context.profile?.role ?? "member",
+    team_id: context.profile?.team_id ?? null,
+  };
+}
+
 export async function redirectIfAuthenticated() {
   const user = await getSessionUser();
 

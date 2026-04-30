@@ -5,10 +5,13 @@ import { TaskBoard } from "@/features/tasks/components/task-board";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTaskPageData } from "@/services/task-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function BoardPage() {
   const identity = pageIdentities.board;
   const IdentityIcon = identity.icon;
-  const { tasks, error } = await getTaskPageData(100);
+  const userContext = await getUserContext();
+  const { tasks, error } = await getTaskPageData(userContext, 100);
 
   return (
     <section className="space-y-6">

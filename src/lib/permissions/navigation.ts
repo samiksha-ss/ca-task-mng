@@ -49,14 +49,14 @@ export const navigationItems: NavigationItem[] = [
     href: "/teams",
     label: "Teams",
     description: "Team structure and ownership",
-    roles: ["admin", "manager"],
+    roles: ["admin", "manager", "member"],
     icon: "Users",
   },
   {
     href: "/members",
     label: "Members",
     description: "People and assignment visibility",
-    roles: ["admin", "manager"],
+    roles: ["admin", "manager", "member"],
     icon: "UserCircle",
   },
   {
@@ -74,13 +74,6 @@ export const navigationItems: NavigationItem[] = [
     icon: "Bell",
   },
   {
-    href: "/settings",
-    label: "Settings",
-    description: "Workspace and account settings",
-    roles: ["admin", "manager", "member"],
-    icon: "Settings",
-  },
-  {
     href: "/admin/users",
     label: "Admin",
     description: "Company-wide management",
@@ -90,9 +83,7 @@ export const navigationItems: NavigationItem[] = [
 ];
 
 export function getNavigationForRole(role: AppRole | null | undefined) {
-  if (!role) {
-    return navigationItems.filter((item) => item.href === APP_HOME_PATH);
-  }
-
-  return navigationItems.filter((item) => item.roles.includes(role));
+  // Default to member role if none is provided to ensure basic navigation is visible
+  const activeRole = role || "member";
+  return navigationItems.filter((item) => item.roles.includes(activeRole));
 }

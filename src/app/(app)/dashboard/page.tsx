@@ -13,8 +13,11 @@ import {
 import { CheckCircle2, Clock, AlertCircle, ListTodo, Plus, Building2, UserPlus, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { TASKS_PATH } from "@/lib/constants/routes";
+import { getUserContext } from "@/lib/auth/session";
 
 export default async function DashboardPage() {
+  const userContext = await getUserContext();
+  
   // Fetch real data in parallel
   const [
     stats,
@@ -23,11 +26,11 @@ export default async function DashboardPage() {
     teamActivity,
     analytics
   ] = await Promise.all([
-    getDashboardStats(),
-    getRecentTasks(5),
-    getTasksDueSoon(5),
-    getTeamActivity(),
-    getTaskAnalytics()
+    getDashboardStats(userContext),
+    getRecentTasks(userContext, 5),
+    getTasksDueSoon(userContext, 5),
+    getTeamActivity(userContext),
+    getTaskAnalytics(userContext)
   ]);
 
   return (

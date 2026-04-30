@@ -8,6 +8,7 @@ import type {
   TaskStatus,
   Team,
 } from "@/types";
+import { getTasksForUser, applyRoleFilters, type UserContext } from "@/lib/queries/tasks";
 
 type TaskDirectoryData = {
   teams: Team[];
@@ -194,77 +195,37 @@ export async function getTaskDirectoryData(
 }
 
 export async function getTaskPageData(
+  userContext: UserContext,
   limit = 20,
   options: { search?: string; status?: string; filter?: string } = {},
 ): Promise<TaskPageData> {
   const supabase = await createSupabaseServerClient();
 
-  let query = supabase
-    .from("tasks")
-    .select(taskSelect)
-    .order("created_at", { ascending: false });
-
-  if (options.search) {
-    query = query.or(`title.ilike.%${options.search}%,description.ilike.%${options.search}%`);
-  }
-
-  if (options.status === "overdue") {
-    const today = new Date().toISOString().slice(0, 10);
-    query = query.neq("status", "done").lt("due_date", today);
-  } else if (options.status) {
-    query = query.eq("status", options.status);
-  }
-
-  if (options.filter === "due_soon") {
-    const today = new Date().toISOString().slice(0, 10);
-    const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10);
-    query = query.gte("due_date", today).lte("due_date", threeDaysFromNow);
-  }
-
-  const tasksResponse = await query.limit(limit);
-
-  const tasksMissing =
-    tasksResponse.error?.code === "42P01" ||
-    isMissingRelationError(tasksResponse.error?.message);
-
-  if (tasksResponse.error && !tasksMissing) {
-    return {
-      tasks: [],
-      teams: [],
-      companies: [],
-      assignees: [],
-      stats: { total: 0, completed: 0, inProgress: 0, overdue: 0 },
-      error: tasksResponse.error.message,
-    };
-  }
-
+  const tasks = await getTasksForUser(userContext, options, limit);
   const directoryData = await getTaskDirectoryData(supabase);
-  const tasks = Array.isArray(tasksResponse.data)
-    ? tasksResponse.data
-        .map((task) => normalizeTask(task))
-        .filter((task): task is Task => task !== null)
-    : [];
 
   return {
     ...directoryData,
     tasks,
     stats: calculateStats(tasks),
-    error: tasksMissing
-      ? "Run the latest Supabase task migration to enable the task module."
-      : null,
+    error: null,
   };
 }
 
-export async function getTaskDetailData(taskId: string): Promise<TaskDetailData> {
+export async function getTaskDetailData(
+  userContext: UserContext,
+  taskId: string,
+): Promise<TaskDetailData> {
   const supabase = await createSupabaseServerClient();
 
-  const taskResponse = await supabase
+  let query = supabase
     .from("tasks")
     .select(taskSelect)
-    .eq("id", taskId)
-    .maybeSingle();
+    .eq("id", taskId);
+
+  query = applyRoleFilters(query, userContext);
+
+  const taskResponse = await query.maybeSingle();
 
   const taskMissing =
     taskResponse.error?.code === "42P01" ||

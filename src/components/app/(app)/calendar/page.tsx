@@ -5,10 +5,13 @@ import { TaskCalendar } from "@/features/tasks/components/task-calendar";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTaskPageData } from "@/services/task-service";
 
+import { getUserContext } from "@/lib/auth/session";
+
 export default async function CalendarPage() {
   const identity = pageIdentities.calendar;
   const IdentityIcon = identity.icon;
-  const { tasks, error } = await getTaskPageData(100);
+  const userContext = await getUserContext();
+  const { tasks, error } = await getTaskPageData(userContext, 100);
 
   return (
     <section className="space-y-6">
