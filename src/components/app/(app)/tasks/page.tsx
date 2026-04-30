@@ -8,12 +8,20 @@ import { requireCurrentUserContext } from "@/lib/auth/session";
 import { pageIdentities } from "@/lib/constants/page-identities";
 import { getTaskPageData } from "@/services/task-service";
 
-export default async function TasksPage() {
+export default async function TasksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const identity = pageIdentities.tasks;
   const IdentityIcon = identity.icon;
   const context = await requireCurrentUserContext();
+  const params = await searchParams;
   const { tasks, teams, companies, assignees, stats, error } =
-    await getTaskPageData();
+    await getTaskPageData(100, {
+      status: typeof params.status === "string" ? params.status : undefined,
+      filter: typeof params.filter === "string" ? params.filter : undefined,
+    });
 
   const canChooseTeam = context.profile?.role === "admin";
   const canChooseAssignee = context.profile?.role !== "member";
@@ -35,21 +43,25 @@ export default async function TasksPage() {
           title="Total tasks"
           value={String(stats.total)}
           hint="Tasks currently visible to your role"
+          href="/tasks"
         />
         <StatCard
           title="Completed"
           value={String(stats.completed)}
           hint="Finished work items in your current scope"
+          href="/tasks?status=done"
         />
         <StatCard
           title="In progress"
           value={String(stats.inProgress)}
           hint="Tasks actively moving through execution"
+          href="/tasks?status=in_progress"
         />
         <StatCard
           title="Overdue"
           value={String(stats.overdue)}
           hint="Open items past their due date"
+          href="/tasks?status=overdue"
         />
       </div>
 

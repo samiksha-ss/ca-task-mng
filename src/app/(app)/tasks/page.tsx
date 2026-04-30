@@ -8,16 +8,18 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { ListTodo, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 
 type TasksPageProps = {
-  searchParams: Promise<{ search?: string }>;
+  searchParams: Promise<{ search?: string; status?: string; filter?: string }>;
 };
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const search = params.search;
+  const status = params.status;
+  const filter = params.filter;
   
   const context = await requireCurrentUserContext();
   const { tasks, teams, companies, assignees, stats, error } =
-    await getTaskPageData(50, search);
+    await getTaskPageData(100, { search, status, filter });
 
   const canChooseTeam = context.profile?.role === "admin";
   const canChooseAssignee = context.profile?.role !== "member";
@@ -41,6 +43,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           icon={<ListTodo className="h-5 w-5" />}
           trend="Scope total"
           trendUp={true}
+          href="/tasks"
         />
         <StatCard
           title="Completed"
@@ -48,6 +51,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           icon={<CheckCircle2 className="h-5 w-5 text-accent" />}
           trend="Total done"
           trendUp={true}
+          href="/tasks?status=done"
         />
         <StatCard
           title="In Progress"
@@ -55,6 +59,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           icon={<Clock className="h-5 w-5 text-amber-500" />}
           trend="Active work"
           trendUp={true}
+          href="/tasks?status=in_progress"
         />
         <StatCard
           title="Overdue"
@@ -62,6 +67,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           icon={<AlertCircle className="h-5 w-5 text-orange-500" />}
           trend="Needs attention"
           trendUp={false}
+          href="/tasks?status=overdue"
         />
       </div>
 

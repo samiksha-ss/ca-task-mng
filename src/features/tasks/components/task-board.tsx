@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { getTaskDetailPath } from "@/lib/constants/routes";
-import type { Task, TaskStatus } from "@/types";
+"use client";
+
+import { TaskCardInteractive } from "./task-card-interactive";
 import { TaskPriorityBadge } from "./task-priority-badge";
+import type { Task, TaskStatus } from "@/types";
 
 const boardColumns: Array<{
   status: TaskStatus;
@@ -74,9 +75,11 @@ export function TaskBoard({ tasks }: TaskBoardProps) {
                 </div>
               ) : (
                 columnTasks.map((task) => (
-                  <article
+                  <TaskCardInteractive
                     key={task.id}
-                    className="rounded-[22px] border border-border bg-background p-4"
+                    task={task}
+                    className="rounded-[22px] border border-border bg-background p-4 hover:border-accent/40"
+                    showDoneButton={column.status !== "done"}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="text-base font-semibold leading-6">
@@ -110,13 +113,10 @@ export function TaskBoard({ tasks }: TaskBoardProps) {
                       </div>
                     </dl>
 
-                    <Link
-                      href={getTaskDetailPath(task.id)}
-                      className="mt-4 inline-flex text-sm font-medium text-accent transition hover:opacity-80"
-                    >
+                    <div className="mt-4 inline-flex text-sm font-medium text-accent transition hover:opacity-80">
                       Open task
-                    </Link>
-                  </article>
+                    </div>
+                  </TaskCardInteractive>
                 ))
               )}
             </div>

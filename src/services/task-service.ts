@@ -193,7 +193,10 @@ export async function getTaskDirectoryData(
   };
 }
 
-export async function getTaskPageData(limit = 20, search?: string): Promise<TaskPageData> {
+export async function getTaskPageData(
+  limit = 20,
+  options: { search?: string; status?: string; filter?: string } = {},
+): Promise<TaskPageData> {
   const supabase = await createSupabaseServerClient();
 
   let query = supabase
@@ -201,8 +204,23 @@ export async function getTaskPageData(limit = 20, search?: string): Promise<Task
     .select(taskSelect)
     .order("created_at", { ascending: false });
 
-  if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+  if (options.search) {
+    query = query.or(`title.ilike.%${options.search}%,description.ilike.%${options.search}%`);
+  }
+
+  if (options.status === "overdue") {
+    const today = new Date().toISOString().slice(0, 10);
+    query = query.neq("status", "done").lt("due_date", today);
+  } else if (options.status) {
+    query = query.eq("status", options.status);
+  }
+
+  if (options.filter === "due_soon") {
+    const today = new Date().toISOString().slice(0, 10);
+    const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    query = query.gte("due_date", today).lte("due_date", threeDaysFromNow);
   }
 
   const tasksResponse = await query.limit(limit);

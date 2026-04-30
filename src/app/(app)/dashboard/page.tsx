@@ -53,6 +53,7 @@ export default async function DashboardPage() {
           icon={<ListTodo className="h-5 w-5" />}
           trend={`${stats.total > 0 ? '+New' : 'No tasks'}`}
           trendUp={stats.total > 0}
+          href="/tasks"
         />
         <StatCard
           title="In Progress"
@@ -60,6 +61,7 @@ export default async function DashboardPage() {
           icon={<Clock className="h-5 w-5 text-amber-500" />}
           trend="Active work"
           trendUp={true}
+          href="/tasks?status=in_progress"
         />
         <StatCard
           title="Due Soon"
@@ -67,6 +69,7 @@ export default async function DashboardPage() {
           icon={<AlertCircle className="h-5 w-5 text-orange-500" />}
           trend="Next 72h"
           trendUp={false}
+          href="/tasks?filter=due_soon"
         />
         <StatCard
           title="Completed"
@@ -74,6 +77,7 @@ export default async function DashboardPage() {
           icon={<CheckCircle2 className="h-5 w-5 text-accent" />}
           trend="Total delivery"
           trendUp={true}
+          href="/tasks?status=done"
         />
       </div>
 

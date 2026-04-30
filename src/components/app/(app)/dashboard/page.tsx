@@ -25,6 +25,15 @@ export default async function DashboardPage() {
   const metricNumbers = data.metrics.map((metric) => Number(metric.value) || 0);
   const maxMetric = Math.max(...metricNumbers, 1);
 
+  const getMetricHref = (label: string) => {
+    const l = label.toLowerCase();
+    if (l.includes("tasks") || l.includes("assigned")) return TASKS_PATH;
+    if (l.includes("progress")) return `${TASKS_PATH}?status=in_progress`;
+    if (l.includes("due") || l.includes("week")) return `${TASKS_PATH}?filter=due_soon`;
+    if (l.includes("completed") || l.includes("done")) return `${TASKS_PATH}?status=done`;
+    return undefined;
+  };
+
   return (
     <section className="flex flex-1 flex-col gap-6">
       <PageHeader
@@ -130,12 +139,13 @@ export default async function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.9fr]">
         <div className="grid gap-6">
           <div className="grid gap-6 sm:grid-cols-2">
-            {data.metrics.slice(0, 2).map((metric) => (
+            {data.metrics.slice(0, 4).map((metric) => (
               <StatCard
                 key={metric.label}
                 title={metric.label}
                 value={metric.value}
                 hint={metric.hint}
+                href={getMetricHref(metric.label)}
               />
             ))}
           </div>

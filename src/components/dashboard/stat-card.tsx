@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type StatCardProps = {
@@ -11,7 +12,10 @@ type StatCardProps = {
   trendUp?: boolean;
 
   // backward compatibility (admin pages etc.)
+  // Hint (for admin / older pages)
   hint?: string;
+  href?: string;
+  onClick?: () => void;
 };
 
 export function StatCard({
@@ -21,9 +25,17 @@ export function StatCard({
   trend,
   trendUp,
   hint,
+  href,
+  onClick,
 }: StatCardProps) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+  const content = (
+    <div 
+      onClick={onClick}
+      className={cn(
+        "rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between transition-all h-full",
+        (onClick || href) && "cursor-pointer hover:border-accent/40 active:scale-[0.98]"
+      )}
+    >
       {/* Top row */}
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -54,4 +66,14 @@ export function StatCard({
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block h-full">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }

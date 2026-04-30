@@ -6,6 +6,28 @@ import { requireCurrentUserContext } from "@/lib/auth/session";
 import { TASKS_PATH } from "@/lib/constants/routes";
 import { createTask, deleteTask, updateTask } from "@/services/task-service";
 import { createTaskSchema, deleteTaskSchema, updateTaskSchema } from "./schema";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { TaskStatus } from "@/types";
+
+
+export async function updateTaskStatusAction(taskId: string, status: TaskStatus) {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("tasks")
+    .update({ 
+      status,
+      completed_at: status === "done" ? new Date().toISOString() : null
+    })
+    .eq("id", taskId);
+
+  if (!error) {
+    revalidatePath(TASKS_PATH);
+    revalidatePath(`/tasks/${taskId}`);
+    revalidatePath("/dashboard");
+  }
+
+  return { error: error?.message ?? null };
+}
 
 export type TaskActionState = {
   error: string | null;

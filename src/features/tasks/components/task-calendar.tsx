@@ -1,8 +1,9 @@
-import Link from "next/link";
-import { getTaskDetailPath } from "@/lib/constants/routes";
-import type { Task } from "@/types";
+"use client";
+
+import { TaskCardInteractive } from "./task-card-interactive";
 import { TaskPriorityBadge } from "./task-priority-badge";
 import { TaskStatusBadge } from "./task-status-badge";
+import type { Task } from "@/types";
 
 type CalendarCell = {
   date: string;
@@ -115,16 +116,17 @@ export function TaskCalendar({
 
               <div className="mt-3 space-y-2">
                 {cell.tasks.slice(0, 3).map((task) => (
-                  <Link
+                  <TaskCardInteractive
                     key={task.id}
-                    href={getTaskDetailPath(task.id)}
+                    task={task}
                     className="block rounded-2xl border border-border bg-card px-3 py-2 text-left transition hover:border-accent"
+                    showDoneButton={false} // Too small for button
                   >
-                    <p className="text-sm font-medium leading-5">{task.title}</p>
+                    <p className="text-sm font-medium leading-5 line-clamp-2">{task.title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {task.assignee_name ?? "Unassigned"}
                     </p>
-                  </Link>
+                  </TaskCardInteractive>
                 ))}
                 {cell.tasks.length > 3 ? (
                   <p className="text-xs text-muted-foreground">
@@ -159,9 +161,10 @@ export function TaskCalendar({
                 .sort((left, right) => (left.due_date ?? "").localeCompare(right.due_date ?? ""))
                 .slice(0, 10)
                 .map((task) => (
-                  <article
+                  <TaskCardInteractive
                     key={task.id}
-                    className="rounded-[24px] border border-border bg-background p-4"
+                    task={task}
+                    className="rounded-[24px] border border-border bg-background p-4 hover:border-accent/40"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <TaskStatusBadge status={task.status} />
@@ -186,7 +189,7 @@ export function TaskCalendar({
                         </dd>
                       </div>
                     </dl>
-                  </article>
+                  </TaskCardInteractive>
                 ))
             )}
           </div>
@@ -209,9 +212,9 @@ export function TaskCalendar({
               </div>
             ) : (
               undatedTasks.map((task) => (
-                <Link
+                <TaskCardInteractive
                   key={task.id}
-                  href={getTaskDetailPath(task.id)}
+                  task={task}
                   className="block rounded-[24px] border border-border bg-background p-4 transition hover:border-accent"
                 >
                   <div className="flex flex-wrap items-center gap-2">
@@ -222,7 +225,7 @@ export function TaskCalendar({
                   <p className="mt-2 text-sm text-muted-foreground">
                     {task.assignee_name ?? "Unassigned"}
                   </p>
-                </Link>
+                </TaskCardInteractive>
               ))
             )}
           </div>
