@@ -1,5 +1,5 @@
-import { getEvents } from "@/lib/queries/events";
-import { getTaskPageData } from "@/services/task-service";
+import { getEventsForCalendar } from "@/lib/queries/events";
+import { getTasksForCalendar } from "@/lib/queries/tasks";
 import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/env";
 import { CalendarView } from "@/components/calendar/calendar-view";
@@ -10,17 +10,15 @@ export default async function CalendarPage() {
   const userContext = await getUserContext();
   const userId = context?.user?.id ?? "";
 
-  const [events, taskData] = await Promise.all([
-    getEvents(),
-    getTaskPageData(userContext, 100)
+  const [events, tasks] = await Promise.all([
+    getEventsForCalendar(userContext),
+    getTasksForCalendar(userContext)
   ]);
 
   return (
     <section className="space-y-6 pb-8">
-      {taskData.error && <AuthStatusMessage tone="info" message={taskData.error} />}
-      
       <CalendarView 
-        tasks={taskData.tasks} 
+        tasks={tasks} 
         events={events} 
         userId={userId} 
       />

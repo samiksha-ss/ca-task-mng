@@ -87,3 +87,42 @@ export async function getTasksForUser(
     creator_name: task.creator?.full_name || task.creator?.email,
   })) as Task[];
 }
+
+/**
+ * Fetches tasks for a specific user that fall within a given date range (based on due_date).
+ */
+export async function getTasksForCalendar(
+  userContext: UserContext,
+  startDate?: string,
+  endDate?: string
+): Promise<Task[]> {
+  const supabase = await createSupabaseServerClient();
+  
+  let query = supabase.from("tasks").select(`
+    *,
+    companies:company_id(name),
+    teams:team_id(name),
+    assignee:assigned_to(full_name, email),
+    creator:created_by(full_name, email)
+  `)
+  .not("due_date", "is", null);
+
+  if (startDate) query = query.gte("due_date", startDate);
+  if (endDate) query = query.lte("due_date", endDate);
+
+  query = applyRoleFilters(query, userContext);
+
+  const { data, error } = await query.order("due_date", { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map(task => ({
+    ...task,
+    company_name: task.companies?.name,
+    team_name: task.teams?.name,
+    assignee_name: task.assignee?.full_name || task.assignee?.email,
+    creator_name: task.creator?.full_name || task.creator?.email,
+  })) as Task[];
+}

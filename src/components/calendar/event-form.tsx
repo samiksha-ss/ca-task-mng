@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createEvent } from "@/lib/queries/events";
+import { createEventAction as createEvent } from "@/lib/actions/events";
 import { useRouter } from "next/navigation";
 import { Clock, Type, AlignLeft } from "lucide-react";
 

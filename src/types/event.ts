@@ -5,6 +5,7 @@ export type Event = {
   start_time: string;
   end_time: string;
   created_by: string;
+  team_id: string | null;
   created_at: string;
   creator_name?: string | null;
 };
