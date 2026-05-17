@@ -35,6 +35,7 @@ type WorkspaceNavProps = {
     companies: Company[];
     assignees: Profile[];
   };
+  unreadNotificationsCount?: number;
 };
 
 function NavLinks({
@@ -42,11 +43,13 @@ function NavLinks({
   pathname,
   mobile = false,
   onNavigate,
+  unreadNotificationsCount = 0,
 }: {
   items: NavigationItem[];
   pathname: string;
   mobile?: boolean;
   onNavigate?: () => void;
+  unreadNotificationsCount?: number;
 }) {
   return (
     <nav className={cn("space-y-1.5", mobile && "space-y-2")}>
@@ -71,8 +74,13 @@ function NavLinks({
               "h-5 w-5 shrink-0 transition-colors",
               isActive ? "text-accent" : "text-muted-foreground group-hover:text-foreground"
             )} />
-            <div className="flex flex-col">
+            <div className="flex-1 flex flex-row items-center justify-between min-w-0">
               <span className="text-sm leading-none">{item.label}</span>
+              {item.href === "/notifications" && unreadNotificationsCount > 0 ? (
+                <span className="h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-[10px] font-black text-white flex items-center justify-center animate-pulse shadow-sm shrink-0">
+                  {unreadNotificationsCount}
+                </span>
+              ) : null}
             </div>
           </Link>
         );
@@ -81,7 +89,7 @@ function NavLinks({
   );
 }
 
-export function WorkspaceNav({ items, userId, directoryData }: WorkspaceNavProps) {
+export function WorkspaceNav({ items, userId, directoryData, unreadNotificationsCount = 0 }: WorkspaceNavProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -121,7 +129,7 @@ export function WorkspaceNav({ items, userId, directoryData }: WorkspaceNavProps
            </div>
            
            <div className="flex-1 overflow-y-auto pr-1 -mr-1 custom-scrollbar">
-             <NavLinks items={items} pathname={pathname} />
+             <NavLinks items={items} pathname={pathname} unreadNotificationsCount={unreadNotificationsCount} />
            </div>
            
            <div className="mt-auto pt-4 border-t border-border/60">
@@ -182,6 +190,7 @@ export function WorkspaceNav({ items, userId, directoryData }: WorkspaceNavProps
                   pathname={pathname}
                   mobile
                   onNavigate={() => setIsOpen(false)}
+                  unreadNotificationsCount={unreadNotificationsCount}
                 />
               </div>
             </div>

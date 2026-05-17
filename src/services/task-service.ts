@@ -145,6 +145,15 @@ function normalizeTask(data: unknown): Task | null {
         : typeof creator?.email === "string"
           ? creator.email
           : null,
+    recurrence_interval_type: typeof task.recurrence_interval_type === "string" ? task.recurrence_interval_type : null,
+    recurrence_interval_count: typeof task.recurrence_interval_count === "number" ? task.recurrence_interval_count : null,
+    recurrence_weekdays: typeof task.recurrence_weekdays === "string" ? task.recurrence_weekdays : null,
+    recurrence_end_type: typeof task.recurrence_end_type === "string" ? task.recurrence_end_type : null,
+    recurrence_end_date: typeof task.recurrence_end_date === "string" ? task.recurrence_end_date : null,
+    recurrence_end_count: typeof task.recurrence_end_count === "number" ? task.recurrence_end_count : null,
+    recurrence_parent_id: typeof task.recurrence_parent_id === "string" ? task.recurrence_parent_id : null,
+    recurrence_instance_date: typeof task.recurrence_instance_date === "string" ? task.recurrence_instance_date : null,
+    recurrence_exception: typeof task.recurrence_exception === "boolean" ? task.recurrence_exception : null,
   };
 }
 

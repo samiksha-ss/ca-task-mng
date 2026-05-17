@@ -69,11 +69,17 @@ export function AppTopbar({ context }: AppTopbarProps) {
                     <p className="font-medium text-foreground truncate text-sm">{profile?.full_name ?? "User"}</p>
                     <p className="text-muted-foreground text-xs truncate mt-0.5">{profile?.email}</p>
                   </div>
-                  <div className="p-1">
+                  <div className="p-1 space-y-0.5">
+                    <a
+                      href="/settings"
+                      className="w-full block px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition font-medium"
+                    >
+                      Workspace Settings
+                    </a>
                     <form action={signOutAction}>
                       <button
                         type="submit"
-                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition"
+                        className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition font-medium cursor-pointer"
                       >
                         Sign out
                       </button>

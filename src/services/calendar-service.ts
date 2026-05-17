@@ -17,7 +17,7 @@ export async function getCalendarPageData(targetDate?: Date): Promise<{ items: C
     const items = await getCalendarData(userContext, startDate, endDate);
     
     return { items, error: null };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to fetch calendar data:", error);
     return { items: [], error: "Failed to load calendar events and tasks." };
   }
@@ -51,9 +51,10 @@ export async function createEvent(eventData: {
 
     if (error) throw error;
     return { data, error: null };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to create event:", error);
-    return { data: null, error: error.message || "Failed to create event" };
+    const message = error instanceof Error ? error.message : "Failed to create event";
+    return { data: null, error: message };
   }
 }
 

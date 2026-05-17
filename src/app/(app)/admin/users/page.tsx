@@ -103,7 +103,7 @@ export default async function AdminUsersPage() {
         </aside>
       </div>
 
-      <TeamGrid teams={teams} />
+      <TeamGrid teams={teams} members={members} role={userContext.role} />
       <MemberList members={members} />
     </section>
   );

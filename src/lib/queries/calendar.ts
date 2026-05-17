@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getEventsForCalendar } from "./events";
 import { getTasksForCalendar, type UserContext } from "./tasks";
+import { generateOccurrences, formatToISODate } from "@/lib/utils/recurrence";
 
 export type CalendarItemType = "task" | "event";
 
@@ -57,6 +59,45 @@ export async function getCalendarData(
       status: task.status,
       assignee: task.assignee_name || "Unassigned",
     });
+
+    // Preview future occurrences visually without database rows
+    if (task.recurrence_interval_type && task.recurrence_interval_type !== "none") {
+      const rule = {
+        intervalType: task.recurrence_interval_type as any,
+        intervalCount: task.recurrence_interval_count ?? 1,
+        weekdays: task.recurrence_weekdays || null,
+        endType: task.recurrence_end_type as any,
+        endDate: task.recurrence_end_date || null,
+        endCount: task.recurrence_end_count || null,
+      };
+
+      const baseDate = new Date(task.due_date);
+      const limitDate = endDate ? new Date(endDate) : new Date();
+      
+      const occurrences = generateOccurrences(baseDate, rule, limitDate);
+      
+      occurrences.forEach(occ => {
+        const occDateStr = formatToISODate(occ);
+        if (occDateStr === dateStr) return;
+
+        // Prevent rendering duplicate visual cards if a real task instance exists for this date
+        const hasDbInstance = tasks.some(t => 
+          (t.recurrence_parent_id === task.recurrence_parent_id || t.id === task.recurrence_parent_id || t.recurrence_parent_id === task.id) &&
+          (t.due_date && (t.due_date.includes("T") ? new Date(t.due_date).toISOString().split("T")[0] : t.due_date) === occDateStr)
+        );
+
+        if (hasDbInstance) return;
+
+        items.push({
+          id: `task_preview_${task.id}_${occDateStr}`,
+          type: "task",
+          title: `${task.title} (Upcoming Preview)`,
+          date: occDateStr,
+          status: "todo",
+          assignee: task.assignee_name || "Unassigned",
+        });
+      });
+    }
   });
 
   // Sort by date then time

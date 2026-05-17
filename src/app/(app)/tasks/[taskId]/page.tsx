@@ -9,6 +9,12 @@ import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
 import { getUserContext, requireCurrentUserContext } from "@/lib/auth/session";
 import { TASKS_PATH } from "@/lib/constants/routes";
 import { getTaskDetailData } from "@/services/task-service";
+import { getCommentsForTask } from "@/services/comment-service";
+import { getTimeEntriesForTask } from "@/services/time-service";
+import { getAttachmentsForTask } from "@/services/attachment-service";
+import { TaskComments } from "@/components/comments/task-comments";
+import { TaskTimeTracking } from "@/components/time-tracking/task-time-tracking";
+import { TaskAttachments } from "@/components/attachments/task-attachments";
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -36,6 +42,10 @@ export default async function TaskDetailPage({
   const context = await requireCurrentUserContext();
   const { task, teams, companies, assignees, error } =
     await getTaskDetailData(userContext, taskId);
+
+  const comments = task ? await getCommentsForTask(taskId) : [];
+  const timeEntries = task ? await getTimeEntriesForTask(taskId) : [];
+  const attachments = task ? await getAttachmentsForTask(taskId) : [];
 
   if (error) {
     return (
@@ -147,6 +157,25 @@ export default async function TaskDetailPage({
               </div>
             </dl>
           </article>
+
+          <TaskTimeTracking
+            taskId={task.id}
+            initialEntries={timeEntries}
+            currentUserId={context.user.id}
+            estimatedMinutes={task.estimated_minutes}
+          />
+
+          <TaskAttachments
+            taskId={task.id}
+            initialAttachments={attachments}
+            currentUserId={context.user.id}
+          />
+
+          <TaskComments
+            taskId={task.id}
+            initialComments={comments}
+            currentUserId={context.user.id}
+          />
         </div>
 
         <div className="space-y-6">
@@ -190,7 +219,12 @@ export default async function TaskDetailPage({
               </div>
 
               <div className="mt-4">
-                <DeleteTaskForm taskId={task.id} />
+                <DeleteTaskForm 
+                  taskId={task.id} 
+                  isRecurring={Boolean(task.recurrence_parent_id || (task.recurrence_interval_type && task.recurrence_interval_type !== "none"))}
+                  taskTitle={task.title}
+                  instanceDate={task.due_date || ""}
+                />
               </div>
             </aside>
           ) : null}

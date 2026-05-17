@@ -1,5 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "@/lib/constants/app";
 import type { Company, Profile, Task, Team } from "@/types";
+import { RecurrenceFields } from "@/components/recurrence/recurrence-fields";
+import type { RecurrenceRule, RecurrenceIntervalType, RecurrenceEndType } from "@/lib/utils/recurrence";
 
 type TaskFormFieldsProps = {
   teams: Team[];
@@ -22,6 +27,18 @@ export function TaskFormFields({
   canChooseAssignee,
   task,
 }: TaskFormFieldsProps) {
+  const [recurrenceEnabled, setRecurrenceEnabled] = useState(
+    task ? (task.recurrence_interval_type !== "none" && task.recurrence_interval_type !== null) : false
+  );
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule>({
+    intervalType: (task?.recurrence_interval_type as RecurrenceIntervalType) || "none",
+    intervalCount: task?.recurrence_interval_count ?? 1,
+    weekdays: task?.recurrence_weekdays ?? null,
+    endType: (task?.recurrence_end_type as RecurrenceEndType) || "never",
+    endDate: task?.recurrence_end_date ? new Date(task.recurrence_end_date).toISOString().split('T')[0] : null,
+    endCount: task?.recurrence_end_count ?? null,
+  });
+
   return (
     <>
       <div className="space-y-2">
@@ -189,6 +206,24 @@ export function TaskFormFields({
         />
         Mark this task as billable work
       </label>
+
+      <div className="space-y-4 pt-2">
+        <RecurrenceFields
+          enabled={recurrenceEnabled}
+          onChangeEnabled={setRecurrenceEnabled}
+          rule={recurrenceRule}
+          onChangeRule={setRecurrenceRule}
+        />
+        
+        {/* Hidden inputs to pass state to server actions */}
+        <input type="hidden" name="recurrenceEnabled" value={String(recurrenceEnabled)} />
+        <input type="hidden" name="recurrenceIntervalType" value={recurrenceRule.intervalType} />
+        <input type="hidden" name="recurrenceIntervalCount" value={String(recurrenceRule.intervalCount)} />
+        <input type="hidden" name="recurrenceWeekdays" value={recurrenceRule.weekdays || ""} />
+        <input type="hidden" name="recurrenceEndType" value={recurrenceRule.endType} />
+        <input type="hidden" name="recurrenceEndDate" value={recurrenceRule.endDate ? String(recurrenceRule.endDate) : ""} />
+        <input type="hidden" name="recurrenceEndCount" value={recurrenceRule.endCount ? String(recurrenceRule.endCount) : ""} />
+      </div>
     </>
   );
 }

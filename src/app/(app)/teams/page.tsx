@@ -39,7 +39,7 @@ export default async function TeamsPage() {
         />
       </div>
 
-      <TeamGrid teams={teams} />
+      <TeamGrid teams={teams} members={members} role={userContext.role} />
     </section>
   );
 }

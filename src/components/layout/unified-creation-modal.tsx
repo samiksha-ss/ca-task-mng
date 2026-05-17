@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, ListTodo, Calendar as CalendarIcon, Check } from "lucide-react";
+import { X, ListTodo, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateTaskForm } from "@/features/tasks/components/create-task-form";
 import { EventForm } from "@/components/calendar/event-form";

@@ -21,6 +21,17 @@ export default async function AppLayout({
   const supabase = await createSupabaseServerClient();
   const directoryData = await getTaskDirectoryData(supabase);
 
+  // Fetch unread notifications count
+  let unreadNotificationsCount = 0;
+  if (context?.user?.id) {
+    const { count } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", context.user.id)
+      .eq("read", false);
+    unreadNotificationsCount = count || 0;
+  }
+
   return (
     <div className="min-h-screen bg-background px-4 py-4 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full gap-6">
@@ -28,6 +39,7 @@ export default async function AppLayout({
           items={navigationItems} 
           userId={context?.user?.id ?? ""}
           directoryData={directoryData}
+          unreadNotificationsCount={unreadNotificationsCount}
         />
         <main className="flex min-w-0 flex-1 flex-col gap-6">
           <AppTopbar context={context} />

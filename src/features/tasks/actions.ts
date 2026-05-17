@@ -4,10 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireCurrentUserContext } from "@/lib/auth/session";
 import { TASKS_PATH } from "@/lib/constants/routes";
-import { createTask, deleteTask, updateTask } from "@/services/task-service";
 import { createTaskSchema, deleteTaskSchema, updateTaskSchema } from "./schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TaskStatus } from "@/types";
+import { 
+  createRecurringTasks, 
+  updateThisOccurrenceOnlyTask, 
+  updateThisAndFutureTasks, 
+  updateEntireSeriesTasks, 
+  deleteRecurringTasks,
+  handleSequentialTaskCompletion
+} from "@/services/recurrence-service";
+import type { RecurrenceRule, RecurrenceIntervalType, RecurrenceEndType } from "@/lib/utils/recurrence";
 
 
 export async function updateTaskStatusAction(taskId: string, status: TaskStatus) {
@@ -21,6 +29,9 @@ export async function updateTaskStatusAction(taskId: string, status: TaskStatus)
     .eq("id", taskId);
 
   if (!error) {
+    if (status === "done") {
+      await handleSequentialTaskCompletion(taskId);
+    }
     revalidatePath(TASKS_PATH);
     revalidatePath(`/tasks/${taskId}`);
     revalidatePath("/dashboard");
@@ -77,7 +88,21 @@ export async function createTaskAction(
       ? context.user.id
       : payload.assignedTo ?? context.user.id;
 
-  const { error } = await createTask({
+  const recurrenceEnabled = formData.get("recurrenceEnabled") === "true";
+  const recurrenceRule: RecurrenceRule = recurrenceEnabled ? {
+    intervalType: (formData.get("recurrenceIntervalType") as RecurrenceIntervalType) || "none",
+    intervalCount: parseInt(formData.get("recurrenceIntervalCount") as string || "1", 10),
+    weekdays: formData.get("recurrenceWeekdays") as string || null,
+    endType: (formData.get("recurrenceEndType") as RecurrenceEndType) || "never",
+    endDate: formData.get("recurrenceEndDate") as string || null,
+    endCount: formData.get("recurrenceEndCount") ? parseInt(formData.get("recurrenceEndCount") as string, 10) : null,
+  } : {
+    intervalType: "none",
+    intervalCount: 1,
+    endType: "never",
+  };
+
+  const { error } = await createRecurringTasks({
     title: payload.title,
     description: payload.description,
     companyId: payload.companyId ?? null,
@@ -89,7 +114,7 @@ export async function createTaskAction(
     estimatedMinutes: payload.estimatedMinutes,
     billable: payload.billable,
     createdBy: context.user.id,
-  });
+  }, recurrenceRule);
 
   if (error) {
     return {
@@ -146,8 +171,25 @@ export async function updateTaskAction(
       ? context.user.id
       : payload.assignedTo ?? null;
 
-  const { error } = await updateTask({
-    taskId: payload.taskId,
+  const editType = (formData.get("editType") as "one" | "future" | "all") || "one";
+  const instanceDate = (formData.get("instanceDate") as string) || payload.dueDate || "";
+
+  const recurrenceEnabled = formData.get("recurrenceEnabled") === "true";
+  const recurrenceRule: RecurrenceRule = recurrenceEnabled ? {
+    intervalType: (formData.get("recurrenceIntervalType") as RecurrenceIntervalType) || "none",
+    intervalCount: parseInt(formData.get("recurrenceIntervalCount") as string || "1", 10),
+    weekdays: formData.get("recurrenceWeekdays") as string || null,
+    endType: (formData.get("recurrenceEndType") as RecurrenceEndType) || "never",
+    endDate: formData.get("recurrenceEndDate") as string || null,
+    endCount: formData.get("recurrenceEndCount") ? parseInt(formData.get("recurrenceEndCount") as string, 10) : null,
+  } : {
+    intervalType: "none",
+    intervalCount: 1,
+    endType: "never",
+  };
+
+  let result;
+  const taskData = {
     title: payload.title,
     description: payload.description,
     companyId: payload.companyId ?? null,
@@ -158,13 +200,29 @@ export async function updateTaskAction(
     status: payload.status,
     estimatedMinutes: payload.estimatedMinutes,
     billable: payload.billable,
-  });
+    createdBy: context.user.id,
+  };
+
+  if (editType === "one") {
+    result = await updateThisOccurrenceOnlyTask(payload.taskId, taskData);
+  } else if (editType === "future" && instanceDate) {
+    result = await updateThisAndFutureTasks(payload.taskId, instanceDate, taskData, recurrenceRule);
+  } else {
+    // Edit entire series
+    result = await updateEntireSeriesTasks(payload.taskId, taskData, recurrenceRule);
+  }
+
+  const { error } = result;
 
   if (error) {
     return {
       ...initialState,
       error,
     };
+  }
+
+  if (payload.status === "done") {
+    await handleSequentialTaskCompletion(payload.taskId);
   }
 
   revalidatePath(TASKS_PATH);
@@ -193,7 +251,9 @@ export async function deleteTaskAction(
     };
   }
 
-  const { error } = await deleteTask(parsed.data.taskId);
+  const deleteType = (formData.get("deleteType") as "one" | "future" | "all") || "one";
+  const instanceDate = (formData.get("instanceDate") as string) || "";
+  const { error } = await deleteRecurringTasks(parsed.data.taskId, deleteType, instanceDate);
 
   if (error) {
     return {

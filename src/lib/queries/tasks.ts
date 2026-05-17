@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Task, TaskStatus } from "@/types";
+import type { Task } from "@/types";
 
 export type UserContext = {
   id: string;
@@ -10,6 +10,7 @@ export type UserContext = {
 /**
  * Applies role-based filters to a Supabase query for the tasks table.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function applyRoleFilters(query: any, userContext: UserContext) {
   if (userContext.role === "admin") {
     return query;

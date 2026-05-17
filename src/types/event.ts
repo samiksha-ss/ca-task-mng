@@ -8,4 +8,13 @@ export type Event = {
   team_id: string | null;
   created_at: string;
   creator_name?: string | null;
+  recurrence_interval_type?: string | null;
+  recurrence_interval_count?: number | null;
+  recurrence_weekdays?: string | null;
+  recurrence_end_type?: string | null;
+  recurrence_end_date?: string | null;
+  recurrence_end_count?: number | null;
+  recurrence_parent_id?: string | null;
+  recurrence_instance_date?: string | null;
+  recurrence_exception?: boolean | null;
 };

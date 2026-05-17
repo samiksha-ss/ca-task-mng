@@ -125,8 +125,8 @@ export async function getTeamActivity(userContext: UserContext) {
     name: profile.full_name || profile.email,
     avatar: profile.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('') : 'U',
     role: profile.role,
-    tasksCompleted: profile.tasks?.filter((t: any) => t.status === 'done').length || 0,
-    activeTasks: profile.tasks?.filter((t: any) => t.status !== 'done').length || 0
+    tasksCompleted: (profile.tasks as unknown as { id: string; status: string }[])?.filter(t => t.status === 'done').length || 0,
+    activeTasks: (profile.tasks as unknown as { id: string; status: string }[])?.filter(t => t.status !== 'done').length || 0
   }));
 }
 
